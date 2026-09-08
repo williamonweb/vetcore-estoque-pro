@@ -11,7 +11,7 @@ async function applyPublicBranding(){
     if(a.accent)document.documentElement.style.setProperty('--accent',a.accent);if(a.accent2)document.documentElement.style.setProperty('--accent2',a.accent2);if(a.gold)document.documentElement.style.setProperty('--gold',a.gold);if(a.danger)document.documentElement.style.setProperty('--danger',a.danger);if(a.radius)document.documentElement.style.setProperty('--radius',a.radius+'px');if(a.fontScale)document.documentElement.style.setProperty('--font-scale',a.fontScale/100);document.body.dataset.density=a.density||'comfortable';
     const ids={visualSystem:b.systemName,visualModule:b.moduleName,mobileSystem:b.systemName,mobileModule:b.moduleName,loginCompany:b.companyName};Object.entries(ids).forEach(([id,v])=>{const el=document.getElementById(id);if(el&&v)el.textContent=v});
     ['visualLogo','mobileLogo'].forEach(id=>{const el=document.getElementById(id);if(!el)return;if(b.logoUrl)el.innerHTML=`<img src="${b.logoUrl}" alt="logo">`;else el.textContent=(b.shortName||'VC').slice(0,4)});
-    if(b.systemName)document.title=b.systemName+' • Acesso';
+    if(b.systemName){const page=document.body?.dataset?.pageTitle||((document.body?.classList.contains('login-body'))?'Acesso':'');document.title=b.systemName+(page?' • '+page:'');}
   }catch(e){console.warn('Não foi possível carregar a identidade pública.',e)}
 }
 applyPublicBranding();
