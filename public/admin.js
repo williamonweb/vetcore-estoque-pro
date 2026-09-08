@@ -73,6 +73,21 @@ function applySettings() {
   });
 }
 
+
+function syncUserRoleFields(){
+  const role = $("userRole")?.value || "admin";
+  const wrap = $("userSupplierWrap");
+  if(wrap) wrap.classList.toggle("hidden", role !== "fornecedor");
+  if(role !== "fornecedor" && $("userSupplier")) $("userSupplier").value = "";
+}
+
+function syncEditUserRoleFields(){
+  const role = $("editUserRole")?.value || "admin";
+  const wrap = $("editUserSupplierWrap");
+  if(wrap) wrap.classList.toggle("hidden", role !== "fornecedor");
+  if(role !== "fornecedor" && $("editUserSupplier")) $("editUserSupplier").value = "";
+}
+
 function supplierName(id) { return state.suppliers.find(s => s.id === id)?.name || "-"; }
 function categoryName(idOrText) { return state.categories.find(c => c.id === idOrText)?.name || idOrText || "-"; }
 function productById(id) { return state.products.find(p => p.id === id); }
@@ -106,6 +121,7 @@ async function saveEditSupplier(id){try{await api('/api/suppliers/'+id,{method:'
 function renderUsers() {
   $("userCount").textContent = state.users.length;
   $("userSupplier").innerHTML = '<option value="">Vincular fornecedor</option>' + state.suppliers.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join("");
+  syncUserRoleFields();
   $("userTable").innerHTML = state.users.map(u => {
     const status = u.active === false ? '<span class="pill bad-pill">Bloqueado</span>' : '<span class="pill ok-pill">Ativo</span>';
     const role = u.role === "admin" ? "Administrador" : (u.role === "estoque" ? "Estoque" : "Fornecedor");
@@ -178,7 +194,7 @@ function renderWinnerGroups(){
 
 async function saveSupplier(){try{await api('/api/suppliers',{method:'POST',body:JSON.stringify({name:$("supName").value,phone:$("supPhone").value,email:$("supEmail").value,username:$("supUser").value,password:$("supPass").value})});['supName','supPhone','supEmail','supUser','supPass'].forEach(id=>$(id).value='');toast('Fornecedor salvo');await load()}catch(e){openModal('Erro',`<p>${esc(e.message)}</p>`)}}
 async function saveUser(){try{await api('/api/users',{method:'POST',body:JSON.stringify({name:$("userName").value,username:$("userLogin").value,password:$("userPass").value,role:$("userRole").value,supplierId:$("userSupplier").value})});['userName','userLogin','userPass'].forEach(id=>$(id).value='');toast('Usuário salvo');await load()}catch(e){openModal('Erro',`<p>${esc(e.message)}</p>`)}}
-function openEditUser(id){const u=state.users.find(x=>x.id===id);if(!u)return;const suppliers='<option value="">Sem fornecedor</option>'+state.suppliers.map(s=>`<option value="${s.id}" ${u.supplierId===s.id?'selected':''}>${esc(s.name)}</option>`).join('');openModal('Editar usuário',`<div class="grid two"><div><label>Nome</label><input id="editUserName" value="${esc(u.name)}"></div><div><label>Login</label><input id="editUserLogin" value="${esc(u.username)}"></div><div><label>Nova senha</label><input type="password" id="editUserPass" placeholder="Deixe em branco para manter"></div><div><label>Perfil</label><select id="editUserRole"><option value="admin" ${u.role==='admin'?'selected':''}>Administrador</option><option value="estoque" ${u.role==='estoque'?'selected':''}>Estoque</option><option value="fornecedor" ${u.role==='fornecedor'?'selected':''}>Fornecedor</option></select></div><div><label>Fornecedor</label><select id="editUserSupplier">${suppliers}</select></div><div><label>Status</label><select id="editUserActive"><option value="true" ${u.active!==false?'selected':''}>Ativo</option><option value="false" ${u.active===false?'selected':''}>Bloqueado</option></select></div></div><button onclick="saveEditUser('${u.id}')">Salvar alterações</button><button class="secondary" onclick="resetUserPassword('${u.id}')">Redefinir para 123456</button>`)}
+function openEditUser(id){const u=state.users.find(x=>x.id===id);if(!u)return;const suppliers='<option value="">Sem fornecedor</option>'+state.suppliers.map(s=>`<option value="${s.id}" ${u.supplierId===s.id?'selected':''}>${esc(s.name)}</option>`).join('');openModal('Editar usuário',`<div class="grid two"><div><label>Nome</label><input id="editUserName" value="${esc(u.name)}"></div><div><label>Login</label><input id="editUserLogin" value="${esc(u.username)}"></div><div><label>Nova senha</label><input type="password" id="editUserPass" placeholder="Deixe em branco para manter"></div><div><label>Perfil</label><select id="editUserRole" onchange="syncEditUserRoleFields()"><option value="admin" ${u.role==='admin'?'selected':''}>Administrador</option><option value="estoque" ${u.role==='estoque'?'selected':''}>Estoque</option><option value="fornecedor" ${u.role==='fornecedor'?'selected':''}>Fornecedor</option></select></div><div id="editUserSupplierWrap"><label>Fornecedor</label><select id="editUserSupplier">${suppliers}</select></div><div><label>Status</label><select id="editUserActive"><option value="true" ${u.active!==false?'selected':''}>Ativo</option><option value="false" ${u.active===false?'selected':''}>Bloqueado</option></select></div></div><button onclick="saveEditUser('${u.id}')">Salvar alterações</button><button class="secondary" onclick="resetUserPassword('${u.id}')">Redefinir para 123456</button>`);setTimeout(syncEditUserRoleFields,0)}
 async function saveEditUser(id){try{await api('/api/users/'+id,{method:'PUT',body:JSON.stringify({name:$("editUserName").value,username:$("editUserLogin").value,password:$("editUserPass").value,role:$("editUserRole").value,supplierId:$("editUserSupplier").value,active:$("editUserActive").value==='true'})});closeModal();toast('Usuário atualizado');await load()}catch(e){openModal('Erro',`<p>${esc(e.message)}</p>`)}}
 async function resetUserPassword(id){try{await api('/api/users/'+id,{method:'PUT',body:JSON.stringify({password:'123456'})});closeModal();toast('Senha redefinida para 123456');await load()}catch(e){openModal('Erro',`<p>${esc(e.message)}</p>`)}}
 async function saveCategory(){try{await api('/api/categories',{method:'POST',body:JSON.stringify({name:$("catName").value})});$("catName").value='';toast('Categoria salva');await load()}catch(e){openModal('Erro',`<p>${esc(e.message)}</p>`)}}

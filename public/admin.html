@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#10233f">
   <title>VetCore • Estoque & Compras</title>
-  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/style.css?v=33">
 </head>
 <body>
 <div class="layout" id="appLayout">
@@ -107,7 +107,7 @@
           <span class="eyebrow">ACESSO</span><h3>Novo usuário</h3>
           <label>Nome</label><input id="userName" placeholder="Nome do usuário">
           <div class="grid two"><div><label>Login</label><input id="userLogin" placeholder="usuario"></div><div><label>Senha</label><input id="userPass" placeholder="Senha inicial"></div></div>
-          <div class="grid two"><div><label>Perfil</label><select id="userRole"><option value="admin">Administrador</option><option value="estoque">Estoque</option><option value="fornecedor">Fornecedor</option></select></div><div><label>Fornecedor vinculado</label><select id="userSupplier"></select></div></div>
+          <div class="grid two"><div><label>Perfil</label><select id="userRole" onchange="syncUserRoleFields()"><option value="admin">Administrador</option><option value="estoque">Estoque</option><option value="fornecedor">Fornecedor</option></select></div><div id="userSupplierWrap" class="hidden"><label>Fornecedor vinculado</label><select id="userSupplier"></select></div></div>
           <button onclick="saveUser()">Salvar usuário</button>
         </div>
         <div class="card content-card">
@@ -256,7 +256,7 @@
 </div>
 
 <div id="modal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3 id="mt"></h3><button class="x" onclick="closeModal()">×</button></div><div id="mb"></div></div></div>
-<script src="/ui.js"></script>
-<script src="/admin.js"></script>
+<script src="/ui.js?v=33"></script>
+<script src="/admin.js?v=33"></script>
 </body>
 </html>
