@@ -1,0 +1,123 @@
+{
+  "users": [
+    {
+      "id": "u_admin",
+      "name": "Administrador",
+      "username": "admin",
+      "password": "scrypt$4340b4bc0f893c7e52056a0e231cb053$f564efb4df5360de6af2d35b9073adc0eb391f22b9b1738d72f53ba051223117727b9d42d21bc666dcc384dc675153728093710be831480f7c4cd6bd2a4af71a",
+      "role": "admin",
+      "supplierId": null,
+      "active": true
+    }
+  ],
+  "suppliers": [],
+  "products": [],
+  "stockMoves": [],
+  "quotes": [],
+  "categories": [
+    {
+      "id": "cat_medicamentos",
+      "name": "Medicamentos"
+    },
+    {
+      "id": "cat_vacinas",
+      "name": "Vacinas"
+    },
+    {
+      "id": "cat_materiais",
+      "name": "Materiais"
+    },
+    {
+      "id": "cat_limpeza",
+      "name": "Limpeza"
+    },
+    {
+      "id": "cat_laboratorio",
+      "name": "Laboratório"
+    },
+    {
+      "id": "cat_racoes",
+      "name": "Rações"
+    },
+    {
+      "id": "cat_escritorio",
+      "name": "Escritório"
+    },
+    {
+      "id": "cat_outros",
+      "name": "Outros"
+    }
+  ],
+  "settings": {
+    "branding": {
+      "systemName": "VetCore",
+      "moduleName": "Estoque & Compras",
+      "shortName": "VC",
+      "logoUrl": "",
+      "companyName": "Clínica Veterinária Onda Animal",
+      "documentName": "Onda Animal",
+      "cnpj": "",
+      "phone": "",
+      "email": "",
+      "address": ""
+    },
+    "appearance": {
+      "accent": "#246BCE",
+      "accent2": "#4F8FE8",
+      "gold": "#7D91A8",
+      "danger": "#E4515A",
+      "radius": 20,
+      "density": "comfortable",
+      "fontScale": 100,
+      "sidebarCompact": false
+    },
+    "stock": {
+      "defaultUnit": "un",
+      "units": [
+        "un",
+        "cx",
+        "pct",
+        "fr",
+        "amp",
+        "ml",
+        "l",
+        "g",
+        "kg"
+      ],
+      "defaultMinStock": 0,
+      "allowNegative": false,
+      "requireMoveNote": false,
+      "lowStockInclusive": true
+    },
+    "quotes": {
+      "defaultTitle": "Cotação",
+      "currency": "R$",
+      "whatsGreeting": "Olá! Segue fechamento da cotação {cotacao}:",
+      "whatsFooter": "Obrigado!",
+      "printTitle": "Fechamento de Cotação",
+      "showWinnerByLowestPrice": true
+    },
+    "supplierPortal": {
+      "title": "Minhas cotações",
+      "intro": "Preencha valores, marca, prazo e condições. Tudo salva online no sistema.",
+      "requireBrand": false,
+      "requireDelivery": false,
+      "requirePayment": false
+    },
+    "nfe": {
+      "defaultCategoryName": "Importado NF-e",
+      "createMissingProducts": true
+    },
+    "modules": {
+      "dashboard": true,
+      "suppliers": true,
+      "users": true,
+      "categories": true,
+      "products": true,
+      "stockMoves": true,
+      "quotes": true,
+      "nfe": true,
+      "cms": true
+    }
+  }
+}

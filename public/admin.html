@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#10233f">
+  <title>VetCore • Estoque & Compras</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="layout" id="appLayout">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-mark" id="sidebarLogo">VC</div>
+      <div class="brand-copy">
+        <h2 id="sidebarName">VetCore</h2>
+        <p id="sidebarModule">Estoque & Compras</p>
+      </div>
+    </div>
+
+    <div class="sidebar-label">Operação</div>
+    <nav class="nav">
+      <button class="active" data-module="dashboard" onclick="showPage('dashboard',this)"><span>⌂</span><b>Dashboard</b></button>
+      <button data-module="products" onclick="showPage('produtos',this)"><span>▦</span><b>Produtos</b></button>
+      <button data-module="stockMoves" onclick="showPage('movimentos',this)"><span>⇄</span><b>Entrada / Saída</b></button>
+      <button data-module="quotes" onclick="showPage('cotacoes',this)"><span>≋</span><b>Cotações</b></button>
+      <button data-module="nfe" onclick="showPage('nfe',this)"><span>⌁</span><b>XML NF-e</b></button>
+    </nav>
+
+    <div class="sidebar-label">Cadastros</div>
+    <nav class="nav">
+      <button data-module="suppliers" onclick="showPage('fornecedores',this)"><span>♙</span><b>Fornecedores</b></button>
+      <button data-module="categories" onclick="showPage('categorias',this)"><span>⌗</span><b>Categorias</b></button>
+      <button data-module="users" onclick="showPage('usuarios',this)"><span>♚</span><b>Usuários</b></button>
+    </nav>
+
+    <div class="sidebar-label">Sistema</div>
+    <nav class="nav">
+      <button data-module="cms" onclick="showPage('cms',this)"><span>⚙</span><b>Configurações CMS</b></button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-mini">
+        <div class="avatar">A</div>
+        <div><b id="miniUser">Administrador</b><small>Administrador</small></div>
+      </div>
+      <button class="ghost logout-btn" onclick="logout()"><span>↪</span><b>Sair</b></button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div class="breadcrumb"><span id="companyBreadcrumb">Onda Animal</span><span>›</span><span>Administração</span></div>
+        <h1 id="title">Dashboard</h1>
+        <p class="muted" id="pageSubtitle">Visão geral do estoque e das compras.</p>
+      </div>
+      <div class="top-actions">
+        <button class="secondary icon-btn" title="Atualizar dados" onclick="load()">↻</button>
+        <div class="online-badge"><i></i> Sistema online</div>
+      </div>
+    </header>
+
+    <section id="dashboard" class="sec">
+      <div class="hero-strip">
+        <div>
+          <span class="eyebrow">CENTRAL DE COMPRAS</span>
+          <h2>Controle rápido do que entra, sai e precisa ser comprado.</h2>
+          <p class="muted">Estoque, fornecedores e cotações em uma única tela.</p>
+        </div>
+        <button onclick="showPage('cotacoes', document.querySelector('[data-module=quotes]'))">+ Nova cotação</button>
+      </div>
+      <div class="kpi-grid" id="cards"></div>
+      <div class="dashboard-grid">
+        <div class="card card-grow">
+          <div class="card-head"><div><span class="eyebrow">ATENÇÃO</span><h3>Produtos abaixo do mínimo</h3></div><button class="secondary small" onclick="showPage('produtos', document.querySelector('[data-module=products]'))">Ver produtos</button></div>
+          <div class="table-wrap"><table><thead><tr><th>Produto</th><th>Estoque</th><th>Mínimo</th><th>Comprar</th></tr></thead><tbody id="lowStock"></tbody></table></div>
+        </div>
+        <div class="card quick-card">
+          <span class="eyebrow">ATALHOS</span><h3>Ações rápidas</h3>
+          <button class="quick-action" onclick="showPage('movimentos', document.querySelector('[data-module=stockMoves]'))"><span>⇄</span><div><b>Movimentar estoque</b><small>Registrar entrada ou saída</small></div></button>
+          <button class="quick-action" onclick="openNewQuoteModal()"><span>≋</span><div><b>Criar cotação</b><small>Selecionar produtos e fornecedores</small></div></button>
+          <button class="quick-action" onclick="showPage('cms', document.querySelector('[data-module=cms]'))"><span>⚙</span><div><b>Personalizar sistema</b><small>Identidade, regras e módulos</small></div></button>
+        </div>
+      </div>
+    </section>
+
+    <section id="fornecedores" class="sec hidden">
+      <div class="section-grid two-cols">
+        <div class="card form-card">
+          <div class="card-head"><div><span class="eyebrow">CADASTRO</span><h3>Novo fornecedor</h3></div></div>
+          <label>Nome do fornecedor</label><input id="supName" placeholder="Ex.: Distribuidora VetSul">
+          <div class="grid two"><div><label>WhatsApp</label><input id="supPhone" placeholder="(51) 99999-9999"></div><div><label>E-mail</label><input id="supEmail" type="email" placeholder="compras@fornecedor.com"></div></div>
+          <div class="grid two"><div><label>Login de acesso</label><input id="supUser" placeholder="fornecedor"></div><div><label>Senha inicial</label><input id="supPass" placeholder="Crie uma senha"></div></div>
+          <button onclick="saveSupplier()">Salvar fornecedor</button>
+        </div>
+        <div class="card content-card">
+          <div class="card-head"><div><span class="eyebrow">BASE</span><h3>Fornecedores cadastrados</h3></div><span class="counter" id="supCount">0</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Whats</th><th>E-mail</th><th>Acesso</th><th>Ações</th></tr></thead><tbody id="supTable"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="usuarios" class="sec hidden">
+      <div class="section-grid two-cols">
+        <div class="card form-card">
+          <span class="eyebrow">ACESSO</span><h3>Novo usuário</h3>
+          <label>Nome</label><input id="userName" placeholder="Nome do usuário">
+          <div class="grid two"><div><label>Login</label><input id="userLogin" placeholder="usuario"></div><div><label>Senha</label><input id="userPass" placeholder="Senha inicial"></div></div>
+          <div class="grid two"><div><label>Perfil</label><select id="userRole"><option value="admin">Administrador</option><option value="estoque">Estoque</option><option value="fornecedor">Fornecedor</option></select></div><div><label>Fornecedor vinculado</label><select id="userSupplier"></select></div></div>
+          <button onclick="saveUser()">Salvar usuário</button>
+        </div>
+        <div class="card content-card">
+          <div class="card-head"><div><span class="eyebrow">SEGURANÇA</span><h3>Usuários do sistema</h3></div><span class="counter" id="userCount">0</span></div>
+          <div class="table-wrap"><table><thead><tr><th>Nome</th><th>Login</th><th>Perfil</th><th>Fornecedor</th><th>Status</th><th>Ações</th></tr></thead><tbody id="userTable"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="categorias" class="sec hidden">
+      <div class="section-grid two-cols narrow-left">
+        <div class="card form-card"><span class="eyebrow">ORGANIZAÇÃO</span><h3>Nova categoria</h3><label>Nome da categoria</label><input id="catName" placeholder="Ex.: Medicamentos"><button onclick="saveCategory()">Salvar categoria</button></div>
+        <div class="card content-card"><div class="card-head"><div><span class="eyebrow">CADASTRO</span><h3>Categorias</h3></div><span class="counter" id="catCount">0</span></div><div class="table-wrap"><table><thead><tr><th>Categoria</th><th>Ações</th></tr></thead><tbody id="catTable"></tbody></table></div></div>
+      </div>
+    </section>
+
+    <section id="produtos" class="sec hidden">
+      <div class="card form-card horizontal-form">
+        <div class="card-head"><div><span class="eyebrow">ESTOQUE</span><h3>Cadastrar produto</h3></div></div>
+        <div class="grid product-grid">
+          <div><label>Produto</label><input id="prodName" placeholder="Nome do produto"></div>
+          <div><label>Categoria</label><div class="input-row"><select id="prodCat"></select><button class="secondary square" onclick="openNewCategoryModal()" title="Nova categoria">+</button></div></div>
+          <div><label>Fornecedor padrão</label><select id="prodSupplier"></select></div>
+          <div><label>Estoque inicial</label><input id="prodStock" type="number" placeholder="0"></div>
+          <div><label>Estoque mínimo</label><input id="prodMin" type="number" placeholder="0"></div>
+          <div><label>Unidade</label><select id="prodUnit"></select></div>
+          <div><label>EAN / Código</label><input id="prodEan" placeholder="Código de barras"></div>
+        </div>
+        <button onclick="saveProduct()">Salvar produto</button>
+      </div>
+      <div class="card content-card">
+        <div class="card-head"><div><span class="eyebrow">CATÁLOGO</span><h3>Produtos</h3></div><div class="toolbar"><input class="table-search" id="productSearch" placeholder="Buscar produto..." oninput="renderProducts()"><span class="counter" id="prodCount">0</span></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Fornecedor padrão</th><th>Estoque</th><th>Mínimo</th><th>Ações</th></tr></thead><tbody id="prodTable"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="movimentos" class="sec hidden">
+      <div class="card form-card horizontal-form">
+        <div class="card-head"><div><span class="eyebrow">MOVIMENTAÇÃO</span><h3>Entrada / Saída</h3></div><span class="helper">Selecione o produto e registre a quantidade.</span></div>
+        <div class="grid move-grid">
+          <div><label>Produto</label><div class="input-row"><select id="moveProduct"></select><button class="secondary square" onclick="openProductSearch()" title="Pesquisar produto">⌕</button></div></div>
+          <div><label>Tipo</label><select id="moveType"><option value="entrada">Entrada</option><option value="saida">Saída</option></select></div>
+          <div><label>Quantidade</label><input id="moveQty" type="number" min="0" step="0.01" placeholder="0"></div>
+          <div class="wide"><label>Observação</label><input id="moveNote" placeholder="Motivo, NF, setor ou observação"></div>
+        </div>
+        <button onclick="saveMove()">Registrar movimentação</button>
+      </div>
+      <div class="card content-card">
+        <div class="card-head"><div><span class="eyebrow">HISTÓRICO</span><h3>Registro de entradas e saídas</h3></div><span class="counter" id="moveCount">0</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Data</th><th>Produto</th><th>Tipo</th><th>Quantidade</th><th>Observação</th></tr></thead><tbody id="stockMovesTable"></tbody></table></div>
+      </div>
+    </section>
+
+    <section id="cotacoes" class="sec hidden">
+      <div class="card quote-sheet">
+        <div class="quote-head"><div><span class="eyebrow">COMPRAS</span><h3>Planilha de Cotação</h3><p class="muted">Compare propostas automaticamente e agrupe os vencedores.</p></div><button onclick="openNewQuoteModal()">+ Nova cotação</button></div>
+        <div id="quoteTabs" class="quote-tabs"></div>
+        <div class="table-wrap"><table class="compact-table"><thead><tr><th>Produto</th><th>Qtd</th><th>Fornecedor</th><th>Marca</th><th>Valor</th><th>Prazo</th><th>Pagamento</th><th>Observação</th><th>Melhor</th></tr></thead><tbody id="quoteSheetBody"></tbody></table></div>
+      </div>
+      <div class="card"><div class="card-head"><div><span class="eyebrow">FECHAMENTO</span><h3>Fornecedores vencedores</h3></div></div><div class="table-wrap"><table class="compact-table"><thead><tr><th>Fornecedor</th><th>Itens ganhos</th><th>Total</th><th>Ações</th></tr></thead><tbody id="quoteWinnerGroups"></tbody></table></div></div>
+      <div class="card"><div class="card-head"><div><span class="eyebrow">ACOMPANHAMENTO</span><h3>Status das cotações</h3></div></div><div id="quotesList"></div></div>
+    </section>
+
+    <section id="nfe" class="sec hidden">
+      <div class="card upload-card">
+        <div class="upload-icon">⌁</div><span class="eyebrow">IMPORTAÇÃO</span><h3>Importar XML da NF-e</h3><p class="muted">O sistema identifica os itens, cria produtos quando permitido e registra a entrada no estoque.</p>
+        <label class="file-drop" for="xmlFile"><b>Selecionar arquivo XML</b><span>Somente arquivos .xml de NF-e</span><input type="file" id="xmlFile" accept=".xml"></label>
+        <button onclick="importNfe()">Importar e dar entrada</button><p id="nfeMsg" class="muted"></p>
+      </div>
+    </section>
+
+    <section id="cms" class="sec hidden">
+      <div class="cms-intro card">
+        <div><span class="eyebrow">CENTRAL DE CONFIGURAÇÕES</span><h2>CMS do VetCore</h2><p class="muted">Personalize identidade, aparência, regras do estoque, cotações, portal do fornecedor, NF-e e os módulos visíveis.</p></div>
+        <div class="cms-actions"><button class="secondary" onclick="resetSettings()">Restaurar padrão</button><button onclick="saveSettings()">Salvar configurações</button></div>
+      </div>
+
+      <div class="cms-tabs" id="cmsTabs">
+        <button class="active" onclick="showCmsTab('identidade',this)">Identidade</button>
+        <button onclick="showCmsTab('aparencia',this)">Aparência</button>
+        <button onclick="showCmsTab('estoque',this)">Estoque</button>
+        <button onclick="showCmsTab('cotacao',this)">Cotações</button>
+        <button onclick="showCmsTab('portal',this)">Portal fornecedor</button>
+        <button onclick="showCmsTab('nfeconfig',this)">NF-e</button>
+        <button onclick="showCmsTab('modulos',this)">Módulos</button>
+        <button onclick="showCmsTab('acesso',this)">Acesso admin</button>
+      </div>
+
+      <div id="cms-identidade" class="cms-pane">
+        <div class="settings-grid">
+          <div class="card settings-card"><span class="eyebrow">MARCA</span><h3>Identidade do sistema</h3><label>Nome principal</label><input id="cfgSystemName"><label>Nome do módulo</label><input id="cfgModuleName"><div class="grid two"><div><label>Sigla</label><input id="cfgShortName" maxlength="4"></div><div><label>URL do logotipo</label><input id="cfgLogoUrl" placeholder="https://..."></div></div></div>
+          <div class="card settings-card"><span class="eyebrow">EMPRESA</span><h3>Dados institucionais</h3><label>Razão/nome da empresa</label><input id="cfgCompanyName"><label>Nome para documentos</label><input id="cfgDocumentName"><div class="grid two"><div><label>CNPJ</label><input id="cfgCnpj"></div><div><label>Telefone</label><input id="cfgPhone"></div></div><label>E-mail</label><input id="cfgEmail"><label>Endereço</label><textarea id="cfgAddress" rows="3"></textarea></div>
+        </div>
+      </div>
+
+      <div id="cms-aparencia" class="cms-pane hidden">
+        <div class="settings-grid">
+          <div class="card settings-card"><span class="eyebrow">CORES</span><h3>Paleta do sistema</h3><div class="color-grid"><label>Principal<input type="color" id="cfgAccent"></label><label>Secundária<input type="color" id="cfgAccent2"></label><label>Destaque<input type="color" id="cfgGold"></label><label>Perigo<input type="color" id="cfgDanger"></label></div><p class="hint">As cores são aplicadas ao painel, login e portal do fornecedor.</p></div>
+          <div class="card settings-card"><span class="eyebrow">INTERFACE</span><h3>Escala e densidade</h3><label>Densidade</label><select id="cfgDensity"><option value="compact">Compacta</option><option value="comfortable">Confortável</option><option value="spacious">Espaçosa</option></select><label>Tamanho geral da fonte <span id="fontScaleValue">100%</span></label><input type="range" min="85" max="120" step="1" id="cfgFontScale" oninput="fontScaleValue.textContent=this.value+'%'"><label>Raio dos cantos <span id="radiusValue">20px</span></label><input type="range" min="8" max="32" step="1" id="cfgRadius" oninput="radiusValue.textContent=this.value+'px'"><label class="switch-row"><input type="checkbox" id="cfgSidebarCompact"><span><b>Menu lateral compacto</b><small>Oculta os textos do menu em telas grandes.</small></span></label></div>
+        </div>
+      </div>
+
+      <div id="cms-estoque" class="cms-pane hidden">
+        <div class="settings-grid">
+          <div class="card settings-card"><span class="eyebrow">PADRÕES</span><h3>Cadastro e unidades</h3><label>Unidade padrão</label><input id="cfgDefaultUnit" placeholder="un"><label>Unidades disponíveis</label><textarea id="cfgUnits" rows="5" placeholder="un, cx, pct, fr"></textarea><label>Estoque mínimo padrão</label><input type="number" min="0" id="cfgDefaultMinStock"></div>
+          <div class="card settings-card"><span class="eyebrow">REGRAS</span><h3>Movimentação de estoque</h3><label class="switch-row"><input type="checkbox" id="cfgAllowNegative"><span><b>Permitir estoque negativo</b><small>Autoriza saída acima do saldo disponível.</small></span></label><label class="switch-row"><input type="checkbox" id="cfgRequireMoveNote"><span><b>Obrigar observação</b><small>Exige justificativa em toda entrada e saída.</small></span></label><label class="switch-row"><input type="checkbox" id="cfgLowStockInclusive"><span><b>Mínimo inclusivo</b><small>Considera alerta quando estoque for igual ao mínimo.</small></span></label></div>
+        </div>
+      </div>
+
+      <div id="cms-cotacao" class="cms-pane hidden">
+        <div class="settings-grid">
+          <div class="card settings-card"><span class="eyebrow">PADRÕES</span><h3>Cotação</h3><label>Título padrão</label><input id="cfgQuoteTitle"><label>Símbolo monetário</label><input id="cfgCurrency" maxlength="5"><label>Título do documento/PDF</label><input id="cfgPrintTitle"><label class="switch-row"><input type="checkbox" id="cfgLowestWinner"><span><b>Destacar menor preço</b><small>Marca automaticamente como vencedor o menor valor unitário.</small></span></label></div>
+          <div class="card settings-card"><span class="eyebrow">WHATSAPP</span><h3>Mensagem de fechamento</h3><label>Saudação</label><textarea id="cfgWhatsGreeting" rows="4"></textarea><p class="hint">Use <code>{cotacao}</code> para inserir o título automaticamente.</p><label>Rodapé</label><textarea id="cfgWhatsFooter" rows="3"></textarea></div>
+        </div>
+      </div>
+
+      <div id="cms-portal" class="cms-pane hidden">
+        <div class="settings-grid">
+          <div class="card settings-card"><span class="eyebrow">PORTAL</span><h3>Textos do fornecedor</h3><label>Título</label><input id="cfgPortalTitle"><label>Texto de orientação</label><textarea id="cfgPortalIntro" rows="5"></textarea></div>
+          <div class="card settings-card"><span class="eyebrow">VALIDAÇÃO</span><h3>Campos obrigatórios</h3><label class="switch-row"><input type="checkbox" id="cfgRequireBrand"><span><b>Marca obrigatória</b><small>Fornecedor precisa informar a marca.</small></span></label><label class="switch-row"><input type="checkbox" id="cfgRequireDelivery"><span><b>Prazo obrigatório</b><small>Fornecedor precisa informar o prazo.</small></span></label><label class="switch-row"><input type="checkbox" id="cfgRequirePayment"><span><b>Pagamento obrigatório</b><small>Fornecedor precisa informar a condição.</small></span></label></div>
+        </div>
+      </div>
+
+      <div id="cms-nfeconfig" class="cms-pane hidden">
+        <div class="settings-grid"><div class="card settings-card"><span class="eyebrow">IMPORTAÇÃO</span><h3>NF-e</h3><label>Categoria padrão para novos produtos</label><input id="cfgNfeCategory"><label class="switch-row"><input type="checkbox" id="cfgNfeCreate"><span><b>Criar produtos ausentes</b><small>Ao importar XML, cadastra automaticamente itens ainda não existentes.</small></span></label></div></div>
+      </div>
+
+      <div id="cms-modulos" class="cms-pane hidden">
+        <div class="card settings-card"><span class="eyebrow">NAVEGAÇÃO</span><h3>Módulos visíveis</h3><p class="muted">Desative o que não usa. O CMS continua disponível para o administrador.</p><div class="module-grid">
+          <label class="module-toggle"><input type="checkbox" id="modDashboard"><span>⌂</span><div><b>Dashboard</b><small>Resumo geral</small></div></label>
+          <label class="module-toggle"><input type="checkbox" id="modProducts"><span>▦</span><div><b>Produtos</b><small>Cadastro de itens</small></div></label>
+          <label class="module-toggle"><input type="checkbox" id="modStockMoves"><span>⇄</span><div><b>Entrada / Saída</b><small>Movimentações</small></div></label>
+          <label class="module-toggle"><input type="checkbox" id="modQuotes"><span>≋</span><div><b>Cotações</b><small>Compras e comparativo</small></div></label>
+          <label class="module-toggle"><input type="checkbox" id="modNfe"><span>⌁</span><div><b>XML NF-e</b><small>Importação</small></div></label>
+          <label class="module-toggle"><input type="checkbox" id="modSuppliers"><span>♙</span><div><b>Fornecedores</b><small>Cadastro e acessos</small></div></label>
+          <label class="module-toggle"><input type="checkbox" id="modCategories"><span>⌗</span><div><b>Categorias</b><small>Organização</small></div></label>
+          <label class="module-toggle"><input type="checkbox" id="modUsers"><span>♚</span><div><b>Usuários</b><small>Contas e segurança</small></div></label>
+        </div></div>
+      </div>
+
+      <div id="cms-acesso" class="cms-pane hidden">
+        <div class="settings-grid"><div class="card settings-card"><span class="eyebrow">ADMINISTRADOR</span><h3>Conta principal</h3><p class="muted">Altere login, nome e senha da conta administrativa inicial.</p><label>Nome</label><input id="cfgAdminName"><label>Login</label><input id="cfgAdminLogin"><label>Nova senha</label><input type="password" id="cfgAdminPass" placeholder="Deixe em branco para manter"><button class="secondary" onclick="saveAdminCredentials()">Atualizar acesso admin</button></div><div class="card settings-card security-note"><span class="security-icon">◈</span><h3>Recomendação</h3><p>Use uma senha exclusiva com letras maiúsculas, minúsculas, números e símbolo. O login inicial desta versão pode ser alterado aqui a qualquer momento.</p></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div id="modal" class="modal hidden"><div class="modal-box"><div class="modal-head"><h3 id="mt"></h3><button class="x" onclick="closeModal()">×</button></div><div id="mb"></div></div></div>
+<script src="/ui.js"></script>
+<script src="/admin.js"></script>
+</body>
+</html>
