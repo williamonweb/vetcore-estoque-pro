@@ -1,8 +1,8 @@
 {
   "name": "vetcore-estoque-compras",
-  "version": "29.0.0",
+  "version": "31.0.0",
   "private": true,
-  "description": "VetCore Estoque & Compras com CMS, perfil estoque, Neon e Vercel",
+  "description": "VetCore Estoque & Compras v31 com CMS, upload de logo, Neon e Vercel",
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js"

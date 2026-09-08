@@ -182,7 +182,7 @@
     <section id="cms" class="sec hidden">
       <div class="cms-intro card">
         <div><span class="eyebrow">CENTRAL DE CONFIGURAÇÕES</span><h2>CMS do VetCore</h2><p class="muted">Personalize identidade, aparência, regras do estoque, cotações, portal do fornecedor, NF-e e os módulos visíveis.</p></div>
-        <div class="cms-actions"><button class="secondary" onclick="resetSettings()">Restaurar padrão</button><button onclick="saveSettings()">Salvar configurações</button></div>
+        <div class="cms-actions"><button class="secondary" onclick="resetSettings()">Restaurar padrão</button><button id="saveSettingsBtn" onclick="saveSettings()">Salvar configurações</button></div>
       </div>
 
       <div class="cms-tabs" id="cmsTabs">
@@ -198,7 +198,7 @@
 
       <div id="cms-identidade" class="cms-pane">
         <div class="settings-grid">
-          <div class="card settings-card"><span class="eyebrow">MARCA</span><h3>Identidade do sistema</h3><label>Nome principal</label><input id="cfgSystemName"><label>Nome do módulo</label><input id="cfgModuleName"><div class="grid two"><div><label>Sigla</label><input id="cfgShortName" maxlength="4"></div><div><label>URL do logotipo</label><input id="cfgLogoUrl" placeholder="https://..."></div></div></div>
+          <div class="card settings-card"><span class="eyebrow">MARCA</span><h3>Identidade do sistema</h3><label>Nome principal</label><input id="cfgSystemName"><label>Nome do módulo</label><input id="cfgModuleName"><div class="grid two"><div><label>Sigla</label><input id="cfgShortName" maxlength="4"></div><div><label>URL do logotipo (opcional)</label><input id="cfgLogoUrl" placeholder="https://..." oninput="cfgLogoData.value='';renderLogoPreview()"><input type="hidden" id="cfgLogoData"></div></div><div class="logo-uploader"><div class="logo-preview" id="cfgLogoPreview">VC</div><div class="logo-upload-actions"><label class="upload-btn">Enviar logo do computador<input type="file" id="cfgLogoFile" accept="image/png,image/jpeg,image/webp" onchange="handleLogoUpload(event)"></label><button type="button" class="secondary" onclick="removeLogo()">Remover logo</button><small class="muted">PNG, JPG ou WEBP. A imagem é otimizada e salva junto das configurações no Neon.</small></div></div></div>
           <div class="card settings-card"><span class="eyebrow">EMPRESA</span><h3>Dados institucionais</h3><label>Razão/nome da empresa</label><input id="cfgCompanyName"><label>Nome para documentos</label><input id="cfgDocumentName"><div class="grid two"><div><label>CNPJ</label><input id="cfgCnpj"></div><div><label>Telefone</label><input id="cfgPhone"></div></div><label>E-mail</label><input id="cfgEmail"><label>Endereço</label><textarea id="cfgAddress" rows="3"></textarea></div>
         </div>
       </div>

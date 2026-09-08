@@ -233,6 +233,10 @@ function sanitizeSettings(input){
   ["requireBrand","requireDelivery","requirePayment"].forEach(k=>s.supplierPortal[k]=!!s.supplierPortal[k]);
   ["createMissingProducts"].forEach(k=>s.nfe[k]=!!s.nfe[k]);
   Object.keys(DEFAULT_SETTINGS.modules).forEach(k=>s.modules[k]=s.modules[k] !== false);
+  let logo = String(s.branding.logoUrl || "").trim();
+  const logoOk = !logo || /^https?:\/\//i.test(logo) || /^data:image\/(png|jpeg|webp);base64,/i.test(logo);
+  if(!logoOk || logo.length > 900000) logo = "";
+  s.branding.logoUrl = logo;
   return s;
 }
 
@@ -279,10 +283,24 @@ app.get("/api/state", requireLogin, async (req,res)=>{
 });
 
 app.put("/api/settings", requireAdmin, async (req,res)=>{
-  const db = await readDB();
-  db.settings = sanitizeSettings(req.body || {});
-  await writeDB(db);
-  res.json({ok:true, settings:db.settings});
+  try{
+    const settings = sanitizeSettings(req.body || {});
+    if(sql){
+      await ensureNeon();
+      await sql`UPDATE vetcore_state
+                SET data = jsonb_set(data, '{settings}', ${JSON.stringify(settings)}::jsonb, true),
+                    updated_at = NOW()
+                WHERE id = 1`;
+    }else{
+      const db = await readDB();
+      db.settings = settings;
+      await writeDB(db);
+    }
+    res.json({ok:true, settings});
+  }catch(err){
+    console.error("Falha ao salvar configurações:", err);
+    res.status(500).json({error:"Não foi possível salvar as configurações no banco. Tente novamente."});
+  }
 });
 app.post("/api/settings/reset", requireAdmin, async (req,res)=>{
   const db = await readDB();
@@ -492,7 +510,7 @@ app.post("/api/import-nfe", requireAdmin, upload.single("xml"), async (req,res)=
 app.get("/api/health", async (req,res)=>{
   try{
     const db = await readDB();
-    res.json({ok:true,version:"29.0.0",storage:sql?"neon":"local",users:db.users.length,products:db.products.length});
+    res.json({ok:true,version:"31.0.0",storage:sql?"neon":"local",users:db.users.length,products:db.products.length});
   }catch(e){
     res.status(500).json({ok:false,error:"Falha de conexão com o banco."});
   }
