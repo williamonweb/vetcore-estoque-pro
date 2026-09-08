@@ -1,5 +1,6 @@
 let state = {};
 let selectedProduct = null;
+let moveMode = "normal";
 const $ = id => document.getElementById(id);
 
 async function api(url, opts = {}) {
@@ -23,6 +24,17 @@ async function load(){
   $("scanInput").focus();
 }
 function categoryName(id){ return state.categories.find(c=>c.id===id)?.name || "Sem categoria"; }
+function setMoveMode(mode){
+  moveMode = mode === "transfer" ? "transfer" : "normal";
+  document.querySelectorAll("[data-move-mode]").forEach(btn=>btn.classList.toggle("active", btn.dataset.moveMode===moveMode));
+  const isTransfer = moveMode === "transfer";
+  $("transferNotice")?.classList.toggle("hidden", !isTransfer);
+  if($("stockConfirmBtn")) $("stockConfirmBtn").classList.toggle("transfer-active", isTransfer);
+  if($("stockConfirmTitle")) $("stockConfirmTitle").textContent = isTransfer ? "Confirmar transferência" : "Confirmar saída";
+  if($("stockConfirmSubtitle")) $("stockConfirmSubtitle").textContent = isTransfer ? "Baixar do estoque e registrar destino Cachoeirinha" : "Registrar movimentação no estoque";
+  if($("outNote")) $("outNote").placeholder = isTransfer ? "Ex.: caixa 1, pedido da unidade, responsável..." : "Ex.: Internação, consultório, uso interno...";
+}
+
 function productById(id){ return state.products.find(p=>p.id===id); }
 function selectProduct(id){
   selectedProduct = productById(id);
@@ -49,8 +61,17 @@ async function saveStockOut(){
     if(!selectedProduct){beepError();return openModal("Atenção","<p>Selecione um produto primeiro.</p>")}
     const qty=Number($("outQty").value||0);
     if(qty<=0){beepError();return openModal("Atenção","<p>Informe uma quantidade válida.</p>")}
-    await api("/api/stock-out",{method:"POST",body:JSON.stringify({productId:selectedProduct.id,quantity:qty,note:$("outNote").value||""})});
-    toast("Saída registrada");beepOk();selectedProduct=null;$("outQty").value=1;$("outNote").value="";renderSelected();await load();
+    const transfer = moveMode === "transfer";
+    await api("/api/stock-out",{method:"POST",body:JSON.stringify({
+      productId:selectedProduct.id,
+      quantity:qty,
+      note:$("outNote").value||"",
+      movementKind: transfer ? "transferencia" : "saida",
+      destination: transfer ? "Cachoeirinha" : ""
+    })});
+    toast(transfer ? "Transferência para Cachoeirinha registrada" : "Saída registrada");
+    beepOk();selectedProduct=null;$("outQty").value=1;$("outNote").value="";renderSelected();await load();
+    $("scanInput").focus();
   }catch(e){beepError();openModal("Erro",`<p>${esc(e.message)}</p>`)}
 }
 function openProductSearch(){
@@ -66,9 +87,15 @@ function renderProductSearchList(){
 function renderStockOuts(){
   const list=[...state.stockMoves].reverse();
   $("outCount").textContent=list.length;
-  $("stockOutTable").innerHTML=list.map(m=>{const p=productById(m.productId);return `<tr><td>${m.date?new Date(m.date).toLocaleString("pt-BR"):"-"}</td><td><b>${esc(p?.name||"-")}</b></td><td><span class="pill bad-pill">-${Number(m.quantity||0)}</span></td><td>${esc(m.userName||"-")}</td><td>${esc(m.note||"-")}</td></tr>`}).join("")||'<tr><td colspan="5" class="empty">Nenhuma saída registrada.</td></tr>';
+  $("stockOutTable").innerHTML=list.map(m=>{
+    const p=productById(m.productId);
+    const transfer=m.movementKind==="transferencia" || !!m.destination;
+    const destination=transfer?(m.destination||"Cachoeirinha"):"Saída normal";
+    return `<tr><td>${m.date?new Date(m.date).toLocaleString("pt-BR"):"-"}</td><td><b>${esc(p?.name||"-")}</b></td><td><span class="pill bad-pill">-${Number(m.quantity||0)}</span></td><td><span class="pill ${transfer?'transfer-pill':'neutral-pill'}">${transfer?'→ ':''}${esc(destination)}</span></td><td>${esc(m.userName||"-")}</td><td>${esc(m.note||"-")}</td></tr>`
+  }).join("")||'<tr><td colspan="6" class="empty">Nenhuma saída registrada.</td></tr>';
 }
 function beepOk(){beep(880,100)} function beepError(){beep(220,180)}
 function beep(freq,duration){try{const A=window.AudioContext||window.webkitAudioContext;const c=new A(),o=c.createOscillator(),g=c.createGain();o.frequency.value=freq;o.type="sine";g.gain.value=.06;o.connect(g);g.connect(c.destination);o.start();setTimeout(()=>{o.stop();c.close()},duration)}catch{}}
 async function logout(){await fetch("/api/logout",{method:"POST"});location.href="/"}
+setMoveMode("normal");
 load().catch(e=>openModal("Erro",`<p>${esc(e.message)}</p>`));

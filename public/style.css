@@ -395,6 +395,24 @@ tbody tr:hover td{background:#f8fbff!important}
 .selected-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
 .selected-meta span{font-size:.65rem;color:#71869c;background:#fff;border:1px solid #dce6ef;border-radius:8px;padding:6px 8px}
 .selected-meta b{color:#405b77}
+
+.stock-move-kind{margin-top:16px}
+.stock-move-kind>label{display:block;margin-bottom:8px}
+.stock-move-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stock-move-option{margin:0!important;min-height:68px;padding:12px 13px!important;border-radius:14px!important;background:#f8fafc!important;color:#536b85!important;border:1.5px solid #dbe5ef!important;box-shadow:none!important;display:flex;align-items:center;justify-content:flex-start;gap:11px;text-align:left}
+.stock-move-option:hover{border-color:#bdd1e6!important;background:#f4f8fc!important}
+.stock-move-option.active{background:#edf5ff!important;border-color:#8bb8ec!important;color:#245f9f!important;box-shadow:0 0 0 3px rgba(36,107,206,.08)!important}
+.stock-move-option.transfer.active{background:#eef7ff!important;border-color:#6fa7e8!important;color:#245b95!important}
+.stock-move-option-icon{width:35px;height:35px;border-radius:10px;display:grid;place-items:center;flex:0 0 35px;background:#e8f0f8;border:1px solid #d5e1ed;font-size:1rem;font-weight:900}
+.stock-move-option.active .stock-move-option-icon{background:#dbeeff;border-color:#c1dcf6;color:#246bce}
+.stock-move-option b{display:block;font-size:.74rem;line-height:1.15}
+.stock-move-option small{display:block;margin-top:4px;font-size:.6rem;font-weight:650;color:#8394a7;line-height:1.25}
+.stock-transfer-notice{margin-top:10px;padding:10px 12px;border-radius:12px;background:#edf6ff;border:1px solid #cee3f8;color:#466a90;display:flex;align-items:flex-start;gap:8px;font-size:.64rem;line-height:1.4}
+.stock-transfer-notice b{white-space:nowrap;color:#245d99}
+.stock-confirm-btn.transfer-active{background:linear-gradient(135deg,#245fa5,#2f7bd4)!important}
+.transfer-pill{background:#e8f3ff!important;border-color:#c5ddf6!important;color:#2464a8!important}
+.neutral-pill{background:#f1f4f7!important;border-color:#dce3ea!important;color:#687b90!important}
+
 .stock-fields{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;margin-top:16px}
 .stock-fields input{height:47px;margin:0!important}
 .stock-qty-input{text-align:center;font-size:1rem!important;font-weight:900;color:#234467!important}
@@ -435,6 +453,8 @@ tbody tr:hover td{background:#f8fbff!important}
   .stock-find-btn{height:48px}
   .stock-scan-bottom{align-items:flex-start;flex-direction:column}
   .stock-scan-bottom .secondary{width:100%}
+  .stock-move-options{grid-template-columns:1fr}
+  .stock-transfer-notice{flex-direction:column}
   .stock-fields{grid-template-columns:1fr}
   .stock-panel{padding:16px}
   .stock-table th,.stock-table td{padding:10px!important}

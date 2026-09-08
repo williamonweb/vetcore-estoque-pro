@@ -417,7 +417,7 @@ app.delete("/api/products/:id", requireAdmin, async (req,res)=>{
 
 app.post("/api/stock-out", requireStockOrAdmin, async (req,res)=>{
   const db = await readDB();
-  const {productId,quantity,note} = req.body;
+  const {productId,quantity,note,movementKind,destination} = req.body;
   const product = db.products.find(p=>p.id===productId);
   if(!product) return res.status(404).json({error:"Produto não encontrado."});
   const qty = Number(quantity||0);
@@ -425,8 +425,11 @@ app.post("/api/stock-out", requireStockOrAdmin, async (req,res)=>{
   if(db.settings.stock.requireMoveNote && !String(note||"").trim()) return res.status(400).json({error:"A observação é obrigatória nas movimentações."});
   if(!db.settings.stock.allowNegative && Number(product.stock||0) - qty < 0) return res.status(400).json({error:"Estoque insuficiente."});
   product.stock = Number(product.stock||0) - qty;
+  const isTransfer = movementKind === "transferencia" || !!String(destination||"").trim();
+  const transferDestination = isTransfer ? (String(destination||"Cachoeirinha").trim() || "Cachoeirinha") : "";
   db.stockMoves.push({
     id:uid("mov"), productId, type:"saida", quantity:qty, note:note||"",
+    movementKind:isTransfer?"transferencia":"saida", destination:transferDestination,
     date:new Date().toISOString(), userId:req.session.user.id, userName:req.session.user.name
   });
   await writeDB(db);

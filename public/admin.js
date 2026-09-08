@@ -164,7 +164,15 @@ function renderMoves() {
 }
 function renderStockMoves() {
   const moves=[...state.stockMoves].reverse(); $("moveCount").textContent=moves.length;
-  $("stockMovesTable").innerHTML = moves.map(m => {const p=productById(m.productId);const isIn=m.type==='entrada';return `<tr><td>${m.date?new Date(m.date).toLocaleString('pt-BR'):'-'}</td><td><b>${esc(p?.name||'-')}</b></td><td><span class="pill ${isIn?'ok-pill':'bad-pill'}">${isIn?'↑ Entrada':'↓ Saída'}</span></td><td><b>${isIn?'+':'-'}${m.quantity}</b></td><td>${esc(m.note||'-')}</td></tr>`}).join('') || '<tr><td colspan="5" class="empty">Nenhuma movimentação registrada.</td></tr>';
+  $("stockMovesTable").innerHTML = moves.map(m => {
+    const p=productById(m.productId);
+    const isIn=m.type==='entrada';
+    const transfer=!isIn && (m.movementKind==='transferencia' || !!m.destination);
+    const movementLabel=isIn?'↑ Entrada':(transfer?`→ ${esc(m.destination||'Cachoeirinha')}`:'↓ Saída');
+    const movementClass=isIn?'ok-pill':(transfer?'transfer-pill':'bad-pill');
+    const note=transfer?`${m.note?esc(m.note)+' · ':''}Transferência de unidade`:esc(m.note||'-');
+    return `<tr><td>${m.date?new Date(m.date).toLocaleString('pt-BR'):'-'}</td><td><b>${esc(p?.name||'-')}</b></td><td><span class="pill ${movementClass}">${movementLabel}</span></td><td><b>${isIn?'+':'-'}${m.quantity}</b></td><td>${note}</td></tr>`
+  }).join('') || '<tr><td colspan="5" class="empty">Nenhuma movimentação registrada.</td></tr>';
 }
 
 function compute(q) {

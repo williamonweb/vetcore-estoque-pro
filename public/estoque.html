@@ -87,6 +87,24 @@
               </div>
             </div>
 
+            <div class="stock-move-kind">
+              <label>Destino da movimentação</label>
+              <div class="stock-move-options">
+                <button type="button" class="stock-move-option active" data-move-mode="normal" onclick="setMoveMode('normal')">
+                  <span class="stock-move-option-icon">↓</span>
+                  <span><b>Saída normal</b><small>Uso interno, setor ou consumo</small></span>
+                </button>
+                <button type="button" class="stock-move-option transfer" data-move-mode="transfer" onclick="setMoveMode('transfer')">
+                  <span class="stock-move-option-icon">→</span>
+                  <span><b>Levar para Cachoeirinha</b><small>Registra como transferência de unidade</small></span>
+                </button>
+              </div>
+              <div id="transferNotice" class="stock-transfer-notice hidden">
+                <b>Modo transferência ativo</b>
+                <span>As próximas saídas serão identificadas como <strong>Transferência → Cachoeirinha</strong> até você voltar para “Saída normal”.</span>
+              </div>
+            </div>
+
             <div class="stock-fields">
               <div>
                 <label for="outQty">Quantidade da saída</label>
@@ -98,9 +116,9 @@
               </div>
             </div>
 
-            <button class="stock-confirm-btn" onclick="saveStockOut()">
-              <span>Confirmar saída</span>
-              <small>Registrar movimentação no estoque</small>
+            <button id="stockConfirmBtn" class="stock-confirm-btn" onclick="saveStockOut()">
+              <span id="stockConfirmTitle">Confirmar saída</span>
+              <small id="stockConfirmSubtitle">Registrar movimentação no estoque</small>
             </button>
           </div>
         </section>
@@ -122,6 +140,7 @@
                   <th>Data</th>
                   <th>Produto</th>
                   <th>Qtd.</th>
+                  <th>Destino</th>
                   <th>Usuário</th>
                   <th>Observação</th>
                 </tr>
