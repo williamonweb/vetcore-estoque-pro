@@ -204,6 +204,12 @@ async function writeDB(db){
   }
   fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
 }
+function hashPassword(password){
+  const salt = crypto.randomBytes(16).toString("hex");
+  const hash = crypto.scryptSync(String(password), salt, 64).toString("hex");
+  return `scrypt$${salt}$${hash}`;
+}
+
 function verifyPassword(password, stored){
   stored = String(stored || "");
   if(!stored.startsWith("scrypt$")) return String(password) === stored; // compatibilidade com bases antigas
